@@ -2,10 +2,11 @@
   "enforceSignatureVerification": true,
   "blockOnTamper": true,
   "blockFridaXposedHooks": true,
+  "blockDebuggableRelease": true,
   "offlineGraceMinutes": 60,
   "refreshIntervalMinutes": 15,
   "failClosedWhenUnverified": true,
   "allowedAppCertSha256": [
-    "706C5B833DF40DC475CB8E6E65D02F8B8E40A7619848789C73A0DDDF4E4DC1BA"
+    "8EA1A2D2F9079BD22C1816F8A343D424F9350357C0854BD9A5C789D4913105F8"
   ]
 }

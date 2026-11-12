@@ -22,6 +22,8 @@ REQUIRED_FILES = {
     "features": "control/features.json",
     "announcement": "control/announcement.json",
     "security": "control/security.json",
+    "links": "control/links.json",
+    "appConfig": "control/app_config.json",
 }
 
 

@@ -1,0 +1,9 @@
+{
+  "brandName": "Enox Pay",
+  "brandTagline": "AUTOMATIC PAYMENT GATEWAY",
+  "footerBrand": "PROJECT OF ENOX",
+  "supportHandle": "@enoxbd",
+  "webhookDocsHeading": "Webhook Integration",
+  "defaultWebhookTimeoutMs": 15000,
+  "maxLogRetentionDays": 90
+}
