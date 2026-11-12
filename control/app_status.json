@@ -1,0 +1,11 @@
+{
+  "appEnabled": true,
+  "status": "active",
+  "mode": "active",
+  "title": "Service Paused",
+  "message": "Enox Pay is currently paused by the administrator. Please check back soon.",
+  "contactUrl": "https://t.me/enoxbd",
+  "allowRetryRecheck": true,
+  "minActiveVersionCode": 1,
+  "disabledVersions": []
+}

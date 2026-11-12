@@ -1,0 +1,11 @@
+{
+  "smsCaptureEnabled": true,
+  "notificationCaptureEnabled": true,
+  "webhookSyncEnabled": true,
+  "manualTransactionEnabled": true,
+  "inboxExplorerEnabled": true,
+  "telegramBotEnabled": true,
+  "analyticsEnabled": true,
+  "backupRestoreEnabled": true,
+  "maxRetryCount": 5
+}

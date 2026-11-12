@@ -1,0 +1,10 @@
+{
+  "enabled": false,
+  "id": "notice-2026-01",
+  "severity": "info",
+  "title": "System Notice",
+  "message": "",
+  "actionLabel": "",
+  "actionUrl": "",
+  "dismissible": true
+}

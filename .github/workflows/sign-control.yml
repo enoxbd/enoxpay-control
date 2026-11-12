@@ -1,0 +1,53 @@
+name: Sign Control Bundle
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'control/**'
+      - '.github/scripts/sign_control.py'
+      - '.github/workflows/sign-control.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sign-control-bundle
+  cancel-in-progress: false
+
+jobs:
+  sign:
+    name: Validate & ECDSA Sign Control JSONs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Sign & Verify Control Bundle
+        env:
+          ENOX_CONTROL_SIGNING_KEY: ${{ secrets.ENOX_CONTROL_SIGNING_KEY }}
+        run: |
+          python3 .github/scripts/sign_control.py
+
+      - name: Commit Signed Control Envelope
+        run: |
+          git config user.name "enoxpay-control-bot"
+          git config user.email "bot@enoxbd.local"
+          git add dist/signed_control.json dist/revision.txt
+          if git diff --cached --quiet; then
+            echo "No changes to signed bundle."
+          else
+            REV="$(cat dist/revision.txt | tr -d '[:space:]')"
+            git commit -m "chore(dist): sign control bundle rev ${REV} [skip ci]"
+            git pull --rebase origin main || true
+            git push origin main
+          fi

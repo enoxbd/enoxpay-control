@@ -1,0 +1,13 @@
+{
+  "latestVersionCode": 1,
+  "latestVersionName": "1.0.0",
+  "minSupportedVersionCode": 1,
+  "forceUpdate": false,
+  "updateTitle": "New Enox Pay Update Available",
+  "releaseNotes": [
+    "Improved stability and high-security remote control verification",
+    "Enhanced background webhook and SMS capture reliability"
+  ],
+  "downloadUrl": "https://github.com/enoxbd/enoxpay/releases/latest",
+  "apkSha256": ""
+}
