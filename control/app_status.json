@@ -5,7 +5,7 @@
   "title": "Service Paused",
   "message": "Enox Pay is currently paused by the administrator. Please check back soon.",
   "contactUrl": "https://t.me/enoxbd",
-  "allowRetryRecheck": true,
+  "allowRetryRecheck": false,
   "minActiveVersionCode": 1,
   "disabledVersions": []
 }
