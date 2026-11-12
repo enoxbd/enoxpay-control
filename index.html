@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Enox Pay — Live Control Plane</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --surface: #131a30;
+      --surface-2: #192340;
+      --border: rgba(130, 148, 255, 0.18);
+      --text: #eef2ff;
+      --muted: #94a3b8;
+      --accent: #6366f1;
+      --ok: #10b981;
+      --warn: #f59e0b;
+      --err: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: radial-gradient(circle at 85% 0%, rgba(99, 102, 241, 0.18), transparent 45%), var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+    .wrap { max-width: 1020px; margin: 0 auto; }
+    header {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+      margin-bottom: 20px; padding: 18px 20px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 16px;
+    }
+    h1 { margin: 0; font-size: 1.25rem; letter-spacing: -0.01em; }
+    .sub { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+    .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em;
+      background: rgba(99, 102, 241, 0.16); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.35);
+    }
+    .pill.ok { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.35); }
+    .pill.off { background: rgba(239, 68, 68, 0.16); color: #fca5a5; border-color: rgba(239, 68, 68, 0.35); }
+    button {
+      cursor: pointer; border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+      padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 0.85rem;
+    }
+    button:hover { border-color: var(--accent); }
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px;
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 14px 16px; overflow: hidden;
+    }
+    .card h2 {
+      margin: 0 0 10px; font-size: 0.9rem; color: #c7d2fe; text-transform: uppercase;
+      letter-spacing: 0.06em; display: flex; justify-content: space-between; align-items: center;
+    }
+    pre {
+      margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.78rem;
+      line-height: 1.45; color: #e2e8f0; white-space: pre-wrap; word-break: break-word;
+      max-height: 320px; overflow: auto;
+    }
+    .meta { margin-bottom: 14px; color: var(--muted); font-size: 0.82rem; display: flex; gap: 16px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Enox Pay Control Plane (Live)</h1>
+        <div class="sub">Uncached GitHub Contents API + Signed Bundle State</div>
+      </div>
+      <div class="controls">
+        <span id="statusBadge" class="pill">Checking...</span>
+        <button id="refreshBtn" type="button">Refresh Now</button>
+      </div>
+    </header>
+
+    <div class="meta">
+      <span id="metaSource">Source: —</span>
+      <span id="metaRev">Revision: —</span>
+      <span id="metaSigned">Signed At: —</span>
+      <span id="metaFetched">Last Check: —</span>
+    </div>
+
+    <div id="grid" class="grid"></div>
+  </div>
+
+  <script>
+    const REPO = "enoxbd/enoxpay-control";
+    const FILES = [
+      "app_status.json",
+      "update.json",
+      "features.json",
+      "announcement.json",
+      "security.json",
+      "links.json",
+      "app_config.json"
+    ];
+
+    function decodeBase64Utf8(b64) {
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return new TextDecoder("utf-8").decode(bytes);
+    }
+
+    async function fetchUncachedJson(path) {
+      const bust = Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+      try {
+        const res = await fetch(
+          `https://api.github.com/repos/${REPO}/contents/${path}?ref=main&_=${bust}`,
+          {
+            headers: { "Accept": "application/vnd.github.raw+json" },
+            cache: "no-store"
+          }
+        );
+        if (res.ok) return { data: await res.json(), via: "GitHub API (0s realtime)" };
+      } catch (_) {}
+
+      const fallback = await fetch(`./${path}?_=${bust}`, { cache: "no-store" });
+      if (!fallback.ok) throw new Error(`HTTP ${fallback.status}`);
+      return { data: await fallback.json(), via: "GitHub Pages static" };
+    }
+
+    function renderCards(sections) {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+      for (const [title, obj] of sections) {
+        const card = document.createElement("div");
+        card.className = "card";
+        const h2 = document.createElement("h2");
+        h2.textContent = title;
+        const pre = document.createElement("pre");
+        pre.textContent = JSON.stringify(obj, null, 2);
+        card.appendChild(h2);
+        card.appendChild(pre);
+        grid.appendChild(card);
+      }
+    }
+
+    async function loadAll() {
+      const badge = document.getElementById("statusBadge");
+      try {
+        const signedRes = await fetchUncachedJson("dist/signed_control.json");
+        const env = signedRes.data;
+        const payload = JSON.parse(decodeBase64Utf8(env.payloadBase64));
+
+        const appStatus = payload.appStatus || {};
+        const enabled = appStatus.appEnabled !== false &&
+          !["closed", "disabled", "maintenance", "killed", "suspended", "inactive"].includes(String(appStatus.status || "").toLowerCase());
+
+        badge.className = "pill " + (enabled ? "ok" : "off");
+        badge.textContent = enabled ? "APP ACTIVE" : "APP DISABLED (" + (appStatus.status || "off") + ")";
+
+        document.getElementById("metaSource").textContent = "Source: " + signedRes.via;
+        document.getElementById("metaRev").textContent = "Revision: " + env.revision;
+        document.getElementById("metaSigned").textContent = "Signed At: " + new Date(env.signedAtEpochMs).toLocaleString();
+        document.getElementById("metaFetched").textContent = "Last Check: " + new Date().toLocaleTimeString();
+
+        const liveControls = await Promise.all(
+          FILES.map(async (file) => {
+            try {
+              const r = await fetchUncachedJson(`control/${file}`);
+              return [`control/${file}`, r.data];
+            } catch (e) {
+              return [`control/${file}`, { error: String(e) }];
+            }
+          })
+        );
+
+        renderCards([
+          ["Signed App Status (Live Payload)", payload.appStatus],
+          ["Signed Update", payload.update],
+          ["Signed Features", payload.features],
+          ["Signed Announcement", payload.announcement],
+          ["Signed Security", payload.security],
+          ["Signed Links", payload.links],
+          ["Signed App Config", payload.appConfig],
+          ...liveControls
+        ]);
+      } catch (err) {
+        badge.className = "pill off";
+        badge.textContent = "LOAD ERROR";
+        document.getElementById("grid").innerHTML = `<div class="card"><h2>Error</h2><pre>${String(err)}</pre></div>`;
+      }
+    }
+
+    document.getElementById("refreshBtn").addEventListener("click", loadAll);
+    loadAll();
+    setInterval(loadAll, 15000);
+  </script>
+</body>
+</html>

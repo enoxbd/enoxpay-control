@@ -4,7 +4,7 @@
   "blockFridaXposedHooks": true,
   "blockDebuggableRelease": true,
   "offlineGraceMinutes": 60,
-  "refreshIntervalMinutes": 15,
+  "refreshIntervalMinutes": 1,
   "failClosedWhenUnverified": true,
   "allowedAppCertSha256": [
     "8EA1A2D2F9079BD22C1816F8A343D424F9350357C0854BD9A5C789D4913105F8"

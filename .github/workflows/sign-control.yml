@@ -1,4 +1,4 @@
-name: Sign Control Bundle
+name: Sign Control Bundle & Deploy Pages
 
 on:
   push:
@@ -7,10 +7,14 @@ on:
       - 'control/**'
       - '.github/scripts/sign_control.py'
       - '.github/workflows/sign-control.yml'
+      - 'index.html'
+      - 'README.md'
   workflow_dispatch:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: sign-control-bundle
@@ -51,3 +55,31 @@ jobs:
             git pull --rebase origin main || true
             git push origin main
           fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Package Static Control Files for Pages
+        run: |
+          mkdir -p _site/control _site/dist
+          cp index.html _site/index.html
+          cp control/*.json _site/control/
+          cp dist/signed_control.json dist/revision.txt _site/dist/
+          touch _site/.nojekyll
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+  deploy:
+    name: Deploy Control JSONs to GitHub Pages
+    needs: sign
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
