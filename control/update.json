@@ -2,7 +2,7 @@
   "latestVersionCode": 2,
   "latestVersionName": "2.0.0",
   "minSupportedVersionCode": 1,
-  "forceUpdate": false,
+  "forceUpdate": true,
   "updateTitle": "New Enox Pay Update Available",
   "releaseNotes": [
     "Improved stability and high-security remote control verification",
