@@ -1,11 +1,11 @@
 {
-  "officialWebsiteUrl": "https://enoxpay.enoxbd.com",
+  "officialWebsiteUrl": "https://enoxbd.github.io/enoxpay/",
   "officialWebsiteLabel": "Visit Official Website",
   "officialWebsiteSubtitle": "Docs, webhook schemas & releases",
   "githubRepoUrl": "https://github.com/enoxbd/enoxpay",
   "githubRepoLabel": "GitHub Repository",
   "githubRepoSubtitle": "Source releases & issue tracker",
-  "docsUrl": "https://enoxpay.enoxbd.com/docs",
+  "docsUrl": "https://enoxbd.github.io/enoxpay/#webhook",
   "supportUrl": "https://t.me/enoxbd",
   "showWebsiteButton": true,
   "showGithubButton": true,
